@@ -154,10 +154,9 @@ class UniversalDirectoryTree(DirectoryTree):
         This is because S3FS handles the root directory differently than other filesystems
         """
         if str(dir_path) == "s3:/":
-            sub_buckets = sorted(
+            return sorted(
                 UPath(f"s3://{bucket.name}") for bucket in dir_path.iterdir()
             )
-            return sub_buckets
         return None
 
 
