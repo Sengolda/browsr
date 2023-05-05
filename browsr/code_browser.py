@@ -156,7 +156,7 @@ class CodeBrowser(BrowsrTextualApp):
         elif document.suffix == ".parquet":
             df = pd.read_parquet(document)[:500]
             return self.df_to_table(pandas_dataframe=df, table=self.table_view)
-        elif document.suffix.lower() in [".png", ".jpg", ".jpeg"]:
+        elif document.suffix.lower() in {".png", ".jpg", ".jpeg"}:
             screen_width = self.app.size.width / 4
             with document.open("rb") as buf:
                 image = Image.open(buf)
@@ -168,7 +168,7 @@ class CodeBrowser(BrowsrTextualApp):
                 resized = image.resize((new_width, new_height))
                 content = rich_pixels.Pixels.from_image(resized)
             return content
-        elif document.suffix.lower() in [".json"]:
+        elif document.suffix.lower() in {".json"}:
             code_str = document.read_text()
             code_obj = json.loads(code_str)
             code_lines = json.dumps(code_obj, indent=2).splitlines()
@@ -199,11 +199,9 @@ class CodeBrowser(BrowsrTextualApp):
         max_file_size = 8
         too_large = file_size_mb >= max_file_size
         exception = (
-            True
-            if not isinstance(file_path, CloudPath) and ".csv" in file_path.suffixes
-            else False
+            not isinstance(file_path, CloudPath) and ".csv" in file_path.suffixes
         )
-        if too_large is True and exception is not True:
+        if too_large and not exception:
             raise FileSizeError("File too large")
 
     def render_code_page(
@@ -252,18 +250,18 @@ class CodeBrowser(BrowsrTextualApp):
             code_view.update(
                 Traceback(theme=self.rich_themes[self.theme_index], width=None)
             )
-            self.sub_title = "ERROR" + f" [{self.rich_themes[self.theme_index]}]"
+            self.sub_title = f"ERROR [{self.rich_themes[self.theme_index]}]"
         else:
             if isinstance(element, DataTable):
                 self.code_view.display = False
                 self.table_view.display = True
-                if scroll_home is True:
+                if scroll_home:
                     self.query_one(DataTable).scroll_home(animate=False)
             else:
                 self.table_view.display = False
                 self.code_view.display = True
                 code_view.update(element)
-            if scroll_home is True:
+            if scroll_home:
                 self.query_one("#code-view").scroll_home(animate=False)
             self.sub_title = f"{file_path} [{self.rich_themes[self.theme_index]}]"
 
